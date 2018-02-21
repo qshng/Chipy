@@ -38,7 +38,7 @@ def log_error(e):
     make it do anything.
     """
     print(e)
-#
+
 
 def get_itunes_podcast_urls(self):
     """Return a list of all podcast urls on this page."""
