@@ -1,0 +1,1 @@
+from itunes_scraper.table_parser import HTMLTableParser

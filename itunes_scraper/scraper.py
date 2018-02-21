@@ -2,6 +2,7 @@ from requests import get
 from requests.exceptions import RequestException
 from contextlib import closing
 from bs4 import BeautifulSoup
+import re
 
 def simple_get(url):
     """
@@ -52,5 +53,10 @@ def get_itunes_podcast_urls(self):
 if __name__ == '__main__':
     starting_url = "https://itunes.apple.com/us/podcast/radiolab/id152249110?mt=2"
     raw_html = simple_get(starting_url)
-    html = BeautifulSoup(raw_html, 'html.parser')
-    print(html)
+    soup = BeautifulSoup(raw_html, 'html.parser')
+    header = soup.find_all(re.compile('^h[1-6]$'))
+    tables = soup.findChildren('table')
+    my_table = tables[0]
+    rows = my_table.findChildren(['th', 'tr'])
+    for row in rows:
+        print(row)

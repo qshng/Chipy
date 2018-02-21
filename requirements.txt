@@ -1,3 +1,5 @@
 beautifulsoup4
 requests
-
+jupyter notebook
+pandas
+lxml
