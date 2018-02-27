@@ -85,5 +85,11 @@ if __name__ == '__main__':
     # populate table!
     # expand df with attrs_cols
     for i, row in enumerate(tr):
+        # populate tr text
+        td = row.find_all('td')
+        for j, column in enumerate(td):
+            new_table.loc[i, j] = column.get_text()
+        # populate tr attributes
         for key in row.attrs.keys():
             new_table.loc[i, key] = row.attrs[key]
+
