@@ -3,6 +3,7 @@ from requests.exceptions import RequestException
 from contextlib import closing
 from bs4 import BeautifulSoup
 import re
+import pandas as pd
 
 def simple_get(url):
     """
@@ -33,11 +34,6 @@ def is_good_response(resp):
 
 
 def log_error(e):
-    """
-    It is always a good idea to log errors.
-    This function just prints them, but you can
-    make it do anything.
-    """
     print(e)
 
 
@@ -50,13 +46,44 @@ def get_itunes_podcast_urls(self):
         urls.append(tag.get('href'))
     return urls
 
+
+def make_soup(url, parser='html.parser'):
+    raw_html = simple_get(url)
+    soup = BeautifulSoup(raw_html, parser)
+    return soup
+
+
+def get_table_header(tr):
+    column_name = []
+    for i, row in enumerate(tr):
+        if i == 0:
+            headers = row.find_all('th')
+            for h in headers:
+                column = h.get_text()
+                column = column.strip()
+                if column:
+                    column_name.append(column)
+        if i == 1:
+            attrs = row.attrs
+            attrs_cols = list(attrs.keys())
+            [column_name.append(col) for col in attrs_cols]
+
+    return column_name
+
+
 if __name__ == '__main__':
-    starting_url = "https://itunes.apple.com/us/podcast/radiolab/id152249110?mt=2"
-    raw_html = simple_get(starting_url)
-    soup = BeautifulSoup(raw_html, 'html.parser')
-    header = soup.find_all(re.compile('^h[1-6]$'))
-    tables = soup.findChildren('table')
-    my_table = tables[0]
-    rows = my_table.findChildren(['th', 'tr'])
-    for row in rows:
-        print(row)
+    url = "https://itunes.apple.com/us/podcast/radiolab/id152249110?mt=2"
+    soup = make_soup(url)
+    # episodes = soup.find_all(class_= 'podcast-episode')
+    # print(episodes)
+    table = soup.find_all('table')[0]  # Grab the first table
+    tr = table.find_all('tr')
+    headers = get_table_header(tr)
+
+    new_table = pd.DataFrame(data=None, columns=headers)
+
+    # populate table!
+    # expand df with attrs_cols
+    for i, row in enumerate(tr):
+        for key in row.attrs.keys():
+            new_table.loc[i, key] = row.attrs[key]
